@@ -5,14 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>jss.commandapi</groupId>
-    <artifactId>CommandAPI</artifactId>
-    <version>0.0.1</version>
-
+    <artifactId>command-api</artifactId>
+    <version>0.0.3-alpha</version>
 
     <properties>
         <java.version>8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub jonagamerpro1234 Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/jonagamerpro1234/CommandAPI</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
@@ -38,6 +45,18 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
