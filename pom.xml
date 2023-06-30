@@ -13,13 +13,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub jonagamerpro1234 Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/jonagamerpro1234/CommandAPI</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <plugins>
