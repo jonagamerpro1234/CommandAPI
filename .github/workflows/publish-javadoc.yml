@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
+          distribution: jdk
+          
 
       - name: Build and generate Javadoc
         run: mvn clean package javadoc:javadoc
