@@ -20,7 +20,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: jdk
+          distribution: 'temurin'
+          server-id: github
           
 
       - name: Build and generate Javadoc
