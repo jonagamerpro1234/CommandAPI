@@ -3,7 +3,8 @@ name: Publish Javadoc
 on:
   push:
     branches:
-      - main 
+      - main  # Cambia esto a la rama en la que trabajes
+
 permissions:
   contents: write
   pages: write
@@ -21,14 +22,15 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-          server-id: github
-          
 
       - name: Build and generate Javadoc
         run: mvn clean package javadoc:javadoc
+
+      - name: List generated files (Debug Step)
+        run: ls -R target/site
 
       - name: Deploy Javadoc to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: .github/site/apidocs
+          publish_dir: target/site/apidocs
