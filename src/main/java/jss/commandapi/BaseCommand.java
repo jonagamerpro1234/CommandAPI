@@ -2,8 +2,10 @@ package jss.commandapi;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,6 +26,33 @@ public abstract class BaseCommand implements TabExecutor {
 
     private String name;
     private final List<SubCommand> subCommands = new ArrayList<>();
+
+    /**
+     * Registers this command automatically using the provided JavaPlugin.
+     * <p>
+     * This method sets this BaseCommand instance as both the executor and
+     * the tab completer for the command defined in the plugin's plugin.yml.
+     * It will log a warning if the command is not defined in plugin.yml.
+     * </p>
+     *
+     * @param plugin the JavaPlugin instance used to register the command
+     * @throws IllegalStateException if the command name has not been set or is empty
+     * @since 0.0.8-alpha
+     */
+    public void register(@NotNull JavaPlugin plugin) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalStateException("Command name cannot be null or empty!");
+        }
+        PluginCommand command = plugin.getCommand(name);
+        if (command == null) {
+            plugin.getLogger().warning("Command '" + name + "' is not defined in plugin.yml!");
+            return;
+        }
+        command.setExecutor(this);
+        command.setTabCompleter(this);
+        plugin.getLogger().info("Registered command: " + name);
+    }
+
 
     /**
      * Sets the main command name.
