@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"jss.commandapi","l":"BaseCommand"},{"p":"jss.commandapi","l":"SubCommand"},{"p":"jss.commandapi","l":"TestCommand"},{"p":"jss.commandapi","l":"Utils"}]
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"jss.commandapi","l":"BaseCommand"},{"p":"jss.commandapi","l":"CommandApi"},{"p":"jss.commandapi","l":"SubCommand"},{"p":"jss.commandapi","l":"Utils"}]
