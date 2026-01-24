@@ -1,20 +1,30 @@
 # CommandAPI
 
+
+
+A lightweight and extensible command framework for Bukkit / Spigot plugins, designed to simplify command handling, subcommands, tab completion, and debugging.
+
+CommandAPI focuses on clean structure, developer ergonomics, and future scalability.
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jonagamerpro1234/CommandAPI)
 
-A flexible Bukkit/Spigot command system with built-in subcommands, permissions, and tab completion.
+### ✨ Features
 
-Features
+✅ Clean BaseCommand system
 
-Define a main command with optional custom logic.
+✅ Modular SubCommand architecture
 
-Add subcommands with their own permissions, console rules, and tab completion.
+✅ Built-in tab completion
 
-Automatic tab suggestions for main commands and subcommands.
+✅ Optional main command logic (no subcommand required)
 
-Easy registration via your JavaPlugin.
+✅ Centralized debug & logging system
 
-Quick Example
+✅ Execution and performance logging
+
+✅ Easy to extend and maintain
+
+### Quick Example
 ```java
 new BaseCommand() {
     {
@@ -36,7 +46,7 @@ new BaseCommand() {
 }.register(this); // automatically registers the command
 ```
 
-How it works
+###  How it works
 
 /mycommand → runs onCommandMain.
 
@@ -46,7 +56,7 @@ Tab completion works automatically for both main command and subcommands.
 
 Each subcommand can define permissions, console access, and custom tab lists.
 
-##Maven
+### Maven
 ```xml
 <dependency>
   <groupId>jss.commandapi</groupId>
@@ -55,16 +65,117 @@ Each subcommand can define permissions, console access, and custom tab lists.
 </dependency>
 ```
 
-## Gradle (Groovy DSL)
+###  Gradle (Groovy DSL)
 ```groovy
 dependencies {
     implementation 'jss.commandapi:command-api:0.0.8-alpha'
 }
 ```
 
-## Gradle (Kotlin DSL)
+### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
     implementation("jss.commandapi:command-api:0.0.8-alpha")
 }
 ```
+
+## 🚀 Getting Started
+1️⃣ Initialize CommandAPI
+Call this once in your plugin onEnable():
+
+``` java
+@Override
+public void onEnable() {
+CommandApi.init(this);
+CommandApi.setDebug(true);
+CommandApi.setLogExecution(true);
+CommandApi.setLogPerformance(true);
+}
+```
+2️⃣ Create a Base Command
+``` java
+public class MainCommand extends BaseCommand {
+
+    public MainCommand() {
+        name("example")
+                .addSubCommand(new HelpSubCommand())
+                .addSubCommand(new ReloadSubCommand());
+    }
+
+    @Override
+    public boolean onCommandMain(CommandSender sender, String[] args) {
+        sender.sendMessage("§eUse /example help");
+        return true;
+    }
+}
+```
+3️⃣ Register the Command
+```java
+@Override
+public void onEnable() {
+new MainCommand().register(this);
+}
+```
+⚠️ The command must exist in plugin.yml.
+
+4️⃣ Create a SubCommand
+``` java
+public class HelpSubCommand extends SubCommand {
+
+    @Override
+    public String name() {
+        return "help";
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, String[] args) {
+        sender.sendMessage("§aThis is the help command!");
+        return true;
+    }
+}
+```
+
+## 🧩 SubCommand Capabilities
+Each SubCommand can define:
+
+- Permissions
+- Aliases
+- Tab completion
+- Console usage
+- Player-only restriction
+- Usage & description
+- Enable / disable logic
+
+Example:
+```java
+@Override
+public List<String> aliases() {
+return List.of("h", "?");
+}
+```
+
+### 🛠 Debug & Logging
+- CommandAPI includes a built-in utility for debugging and logging:
+- Command execution logs
+- Sender type (Player / Console)
+- Execution time
+- Error handling with stack traces (debug mode)
+
+This helps a lot during development and production debugging.
+
+## 🧪 Current Status
+- Version: 0.0.x-alpha
+- API is stable for testing
+- Breaking changes may occur until 1.0.0
+
+## 🔮 Roadmap
+- Command execution hooks
+- Context-based command handling
+- Better permission resolvers
+- Metrics & analytics
+- Optional annotations support
+
+## 📜 License
+MIT License – free to use, modify, and distribute.
+
+

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * 3. Tab completion for both subcommands and the main command.
  *
  * @author jonagamerpro1234
- * @version 0.0.7-alpha
+ * @version 0.0.9-alpha
  */
 public abstract class BaseCommand implements TabExecutor {
 
@@ -29,11 +29,6 @@ public abstract class BaseCommand implements TabExecutor {
 
     /**
      * Registers this command automatically using the provided JavaPlugin.
-     * <p>
-     * This method sets this BaseCommand instance as both the executor and
-     * the tab completer for the command defined in the plugin's plugin.yml.
-     * It will log a warning if the command is not defined in plugin.yml.
-     * </p>
      *
      * @param plugin the JavaPlugin instance used to register the command
      * @throws IllegalStateException if the command name has not been set or is empty
@@ -43,16 +38,18 @@ public abstract class BaseCommand implements TabExecutor {
         if (name == null || name.isEmpty()) {
             throw new IllegalStateException("Command name cannot be null or empty!");
         }
+
         PluginCommand command = plugin.getCommand(name);
         if (command == null) {
-            plugin.getLogger().warning("Command '" + name + "' is not defined in plugin.yml!");
+            CommandApi.log("Command '" + name + "' is not defined in plugin.yml!");
             return;
         }
+
         command.setExecutor(this);
         command.setTabCompleter(this);
-        plugin.getLogger().info("Registered command: " + name);
-    }
 
+        CommandApi.log("Registered command: " + name);
+    }
 
     /**
      * Sets the main command name.
@@ -92,7 +89,6 @@ public abstract class BaseCommand implements TabExecutor {
 
     /**
      * Logic executed when no subcommand is provided.
-     * Override this in the concrete class if needed.
      *
      * @param sender the CommandSender executing the command
      * @param args the command arguments
@@ -105,8 +101,7 @@ public abstract class BaseCommand implements TabExecutor {
     }
 
     /**
-     * Tab completion suggestions for the main command
-     * (when not completing a subcommand)
+     * Tab completion suggestions for the main command.
      *
      * @param sender the CommandSender requesting tab completion
      * @param args the command arguments
@@ -118,84 +113,93 @@ public abstract class BaseCommand implements TabExecutor {
     }
 
     /**
-     * Handles command execution.
-     * Routes to subcommands if one matches, otherwise calls onCommandMain.
-     *
-     * @param sender the CommandSender executing the command
-     * @param command the Command object
-     * @param label the command label
-     * @param args the command arguments
-     * @return true if execution was handled
-     * @since 0.0.7-alpha
+     * Handles command execution with debug, logging, and performance tracking.
+     * @since 0.0.8-alpha
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
-        if (args.length < 1) {
-            return onCommandMain(sender, args);
-        }
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            String @NotNull [] args
+    ) {
+        long startTime = System.nanoTime();
 
-        String subName = args[0];
-        for (SubCommand sub : subCommands) {
-            if (subName.equalsIgnoreCase(sub.name()) || sub.aliases().contains(subName)) {
+        try {
 
-                if (!sub.isEnabled()) {
-                    sender.sendMessage(sub.disabledMessage());
-                    return true;
-                }
-
-                if (sub.requiresPermission() && !sender.hasPermission("plugin." + sub.permission())) {
-                    sender.sendMessage("§cYou do not have permission to execute this command!");
-                    return true;
-                }
-
-                if (!sub.allowConsole() && !(sender instanceof Player)) {
-                    sender.sendMessage("§cThis command cannot be executed from console!");
-                    return true;
-                }
-
-                return sub.onCommand(sender, args);
+            if (args.length < 1) {
+                return onCommandMain(sender, args);
             }
-        }
 
-        return onCommandMain(sender, args);
+            String subName = args[0];
+
+            for (SubCommand sub : subCommands) {
+                if (subName.equalsIgnoreCase(sub.name()) || sub.aliases().contains(subName)) {
+
+                    if (!sub.isEnabled()) {
+                        sender.sendMessage(sub.disabledMessage());
+                        return true;
+                    }
+
+                    if (sub.requiresPermission() && !sender.hasPermission("plugin." + sub.permission())) {
+                        sender.sendMessage("§cYou do not have permission to execute this command!");
+                        return true;
+                    }
+
+                    if (!sub.allowConsole() && !(sender instanceof Player)) {
+                        sender.sendMessage("§cThis command cannot be executed from console!");
+                        return true;
+                    }
+
+                    return sub.onCommand(sender, args);
+                }
+            }
+
+            return onCommandMain(sender, args);
+
+        } catch (Exception exception) {
+
+            CommandApi.handleError(name, sender, exception);
+            return true;
+
+        } finally {
+
+            long executionTimeMs = (System.nanoTime() - startTime) / 1_000_000;
+            CommandApi.logCommandExecution(name, sender, executionTimeMs);
+        }
     }
 
     /**
      * Handles tab completion for the main command and its subcommands.
      *
-     * @param sender the CommandSender requesting tab completion
-     * @param command the Command object
-     * @param alias the command alias
-     * @param args the command arguments
-     * @return a list of tab completion suggestions
      * @since 0.0.7-alpha
      */
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
+    public List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String alias,
+            String @NotNull [] args
+    ) {
 
         List<String> suggestions = new ArrayList<>();
 
         if (args.length == 1) {
             String start = args[0].toLowerCase();
 
-            // Subcommand suggestions
             List<String> subNames = subCommands.stream()
                     .map(SubCommand::name)
                     .filter(n -> n.toLowerCase().startsWith(start))
                     .collect(Collectors.toList());
 
-            // Main command suggestions
-            List<String> mainSuggestions = onTabMain(sender, args);
-
-            subNames.addAll(mainSuggestions);
+            subNames.addAll(onTabMain(sender, args));
             suggestions.addAll(subNames);
 
         } else if (args.length > 1) {
             for (SubCommand sub : subCommands) {
                 if (args[0].equalsIgnoreCase(sub.name()) || sub.aliases().contains(args[0])) {
                     List<String> tab = sub.onTabList(sender, args);
-                    if (tab != null) return tab;
-                    return new ArrayList<>();
+                    return tab != null ? tab : new ArrayList<>();
                 }
             }
 
@@ -205,22 +209,10 @@ public abstract class BaseCommand implements TabExecutor {
         return suggestions;
     }
 
-    /**
-     * Returns the list of registered subcommands.
-     *
-     * @return the list of subcommands
-     * @since 0.0.7-alpha
-     */
     public List<SubCommand> getSubCommands() {
         return subCommands;
     }
 
-    /**
-     * Returns the name of the main command.
-     *
-     * @return the command name
-     * @since 0.0.7-alpha
-     */
     public String getName() {
         return name;
     }
