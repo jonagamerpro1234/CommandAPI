@@ -61,21 +61,21 @@ Each subcommand can define permissions, console access, and custom tab lists.
 <dependency>
   <groupId>jss.commandapi</groupId>
   <artifactId>command-api</artifactId>
-  <version>0.0.8-alpha</version>
+  <version>0.0.9-alpha</version>
 </dependency>
 ```
 
 ###  Gradle (Groovy DSL)
 ```groovy
 dependencies {
-    implementation 'jss.commandapi:command-api:0.0.8-alpha'
+    implementation 'jss.commandapi:command-api:0.0.9-alpha'
 }
 ```
 
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("jss.commandapi:command-api:0.0.8-alpha")
+    implementation("jss.commandapi:command-api:0.0.9-alpha")
 }
 ```
 
